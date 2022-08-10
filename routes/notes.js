@@ -27,6 +27,9 @@ router.post('/', (req, res) => {
 		} else {
 			const currentData = JSON.parse(data);
 			currentData.push({ title, text });
+			currentData.forEach((note, position) => {
+				note.id = position;
+			});
 			fs.writeFile(
 				'./db/db.json',
 				JSON.stringify(currentData),
@@ -47,15 +50,23 @@ router.delete('/:id', (req, res) => {
 	fs.readFile('./db/db.json', 'utf-8', (err, data) => {
 		if (err) {
 			console.log(err);
-			res.status(400).send('There was an error with /note get');
+			res.status(400).send('There was an error with /notes delete');
 		} else {
-			console.log(JSON.parse(data));
-			const noteList = JSON.parse(data);
-			title = req.params.id;
-			const deleteNote = noteList.filter((notes) => {
-				return notes.title != title;
+			const currentList = JSON.parse(data);
+			const newList = currentList.filter((note) => {
+				return note.id != req.params.id;
 			});
-			console.log(deleteNote);
+			console.log(newList);
+			fs.writeFile('./db/db.json', JSON.stringify(newList), 'utf-8', (err) => {
+				if (err) {
+					console.log(err);
+					res
+						.status(400)
+						.send('There was an error with the /note writting delete list.');
+				} else {
+					res.send('Deletion Successful!');
+				}
+			});
 		}
 	});
 });
