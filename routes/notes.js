@@ -1,12 +1,21 @@
 //Accessed Via /notes
-const { Router, application } = require('express');
+const { Router } = require('express');
 const path = require('path');
 const fs = require('fs');
+const { title } = require('process');
 
 const router = Router();
 
 router.get('/', (req, res) => {
-	res.send('This is where the notes page will display');
+	fs.readFile('./db/db.json', 'utf-8', (err, data) => {
+		if (err) {
+			console.log(err);
+			res.status(400).send('There was an error with /note get');
+		} else {
+			console.log(JSON.parse(data));
+			res.json(JSON.parse(data));
+		}
+	});
 });
 
 router.post('/', (req, res) => {
@@ -32,6 +41,23 @@ router.post('/', (req, res) => {
 		}
 	});
 	res.send('Notes succesfully updated');
+});
+
+router.delete('/:id', (req, res) => {
+	fs.readFile('./db/db.json', 'utf-8', (err, data) => {
+		if (err) {
+			console.log(err);
+			res.status(400).send('There was an error with /note get');
+		} else {
+			console.log(JSON.parse(data));
+			const noteList = JSON.parse(data);
+			title = req.params.id;
+			const deleteNote = noteList.filter((notes) => {
+				return notes.title != title;
+			});
+			console.log(deleteNote);
+		}
+	});
 });
 
 module.exports = router;
